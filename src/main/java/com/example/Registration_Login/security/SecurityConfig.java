@@ -1,7 +1,6 @@
 package com.example.Registration_Login.security;
 
 import com.example.Registration_Login.filter.JwtFilter;
-import com.example.Registration_Login.listener.SessionListener;
 import com.example.Registration_Login.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -36,31 +35,20 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/register", "/login/**", "/logout", "/refresh-token", "/verify-otp", "/api/auth/**").permitAll()
+                        .requestMatchers("/register", "/login/**", "/logout", "/refresh-token", "/verify-otp", "/api/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/role/user").hasRole("USER")
                         .requestMatchers("/role/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
+
                 .oauth2Login(oauth2 -> oauth2
-                    .loginPage("/login/google")
-                        .successHandler((request, response, authentication) -> {
-                            OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-                            String provider = token.getAuthorizedClientRegistrationId();
-
-                            OAuth2AuthorizedClient client = (OAuth2AuthorizedClient) request
-                                    .getAttribute(OAuth2AuthorizedClient.class.getName());
-
-                            if (client != null) {
-                                String accessToken = client.getAccessToken().getTokenValue();
-                                System.out.println("Access Token: " + accessToken);
-                            } else {
-                                System.out.println("OAuth2AuthorizedClient not found in request.");
-                            }
-
-                            String redirectUrl = "/loginSuccess/" + provider;
-                            response.sendRedirect(redirectUrl);
+                        .loginPage("/api/login/google")
+                        .successHandler((req, res, auth) -> {
+                            String provider = ((OAuth2AuthenticationToken) auth).getAuthorizedClientRegistrationId();
+                            res.sendRedirect("/api/loginSuccess/" + provider);
                         })
                         .failureUrl("/loginFailure"))
+
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login/local")
@@ -92,10 +80,5 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizedClientService authorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
         return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
-    }
-
-    @Bean
-    public SessionListener sessionListener() {
-        return new SessionListener();
     }
 }

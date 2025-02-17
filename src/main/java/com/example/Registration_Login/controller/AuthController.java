@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RestController
-// @RequestMapping("/api/auth")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -85,7 +85,7 @@ public class AuthController {
     public ResponseEntity<String> loginAuth(@PathVariable String provider, HttpServletResponse response)
             throws IOException {
         response.sendRedirect("/oauth2/authorization/" + provider);
-        return ResponseEntity.ok("Đang chuyển hướng...");
+        return ResponseEntity.ok("...");
     }
 
     @GetMapping("/loginSuccess/{provider}")

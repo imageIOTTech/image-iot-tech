@@ -1,9 +1,13 @@
 package com.example.Registration_Login.service;
 
 import com.example.Registration_Login.exception.CustomException;
+
+import lombok.RequiredArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -16,10 +20,19 @@ public class OtpService {
     private final SecureRandom random = new SecureRandom();
     private static final Logger logger = LoggerFactory.getLogger(OtpService.class);
 
+    private final EmailService emailService;
+
+    @Autowired
+    public OtpService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
     public String generateOtp(String email) {
         String otp = String.format("%06d", random.nextInt(1000000));
         otpStorage.put(email, otp);
-        logger.info("Generated OTP for {}: {}", email, otp);
+
+        emailService.sendOtpEmail(email, otp);
+
         return otp;
     }
 
