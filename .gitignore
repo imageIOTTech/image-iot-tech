@@ -30,6 +30,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Ignore macOS file
+.DS_Store
+
 ### STS ###
 .apt_generated
 .classpath

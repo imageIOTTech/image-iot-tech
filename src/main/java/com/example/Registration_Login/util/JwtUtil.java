@@ -3,6 +3,8 @@ package com.example.Registration_Login.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,9 @@ public class JwtUtil {
 
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
+    @Value("${jwt.access.expiration}")
+    private long jwtAccessExpiration;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -38,6 +43,12 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
+    public Long extractUserId(String token) {
+        final Claims claims = extractAllClaims(token);
+        Number userId = claims.get("userId", Number.class);
+        return userId != null ? userId.longValue() : null;
+    }
+
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
@@ -46,18 +57,23 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String username, Set<Role> roles) {
+    public String generateToken(String username, Long userId, Set<Role> roles) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", roles.stream()
                 .map(role -> "ROLE_" + role.name())
                 .collect(Collectors.toList()));
+        claims.put("userId", userId);
         return createToken(claims, username);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(key).compact();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtAccessExpiration))
+                .signWith(key)
+                .compact();
     }
 
     public Boolean validateToken(String token, String username) {

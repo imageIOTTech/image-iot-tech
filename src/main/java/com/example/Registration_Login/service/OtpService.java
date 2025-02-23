@@ -22,13 +22,15 @@ public class OtpService {
 
     private final EmailService emailService;
 
+    private static final int OTP_Bound = 1000000;
+
     @Autowired
     public OtpService(EmailService emailService) {
         this.emailService = emailService;
     }
 
     public String generateOtp(String email) {
-        String otp = String.format("%06d", random.nextInt(1000000));
+        String otp = String.format("%06d", random.nextInt(OTP_Bound));
         otpStorage.put(email, otp);
 
         emailService.sendOtpEmail(email, otp);
