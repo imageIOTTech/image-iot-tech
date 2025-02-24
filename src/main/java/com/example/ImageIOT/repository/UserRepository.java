@@ -1,12 +1,13 @@
-package com.example.Registration_Login.repository;
+package com.example.ImageIOT.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.Registration_Login.model.User;
+import com.example.ImageIOT.enums.AuthProvider;
+import com.example.ImageIOT.model.User;
+
 import java.util.List;
-import com.example.Registration_Login.enums.AuthProvider;
 
 
 
@@ -14,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
 
     Optional<User> findByEmailAndPhonenumber(String email, Long phonenumber);
 
-    Optional<User> findByEmail(String email);
+    List<User> findByEmail(String email);
 
     Optional<User> findByEmailAndAuthProvider(String email, AuthProvider authProvider);
     

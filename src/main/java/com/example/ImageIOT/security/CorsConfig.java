@@ -1,4 +1,4 @@
-package com.example.Registration_Login.security;
+package com.example.ImageIOT.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
