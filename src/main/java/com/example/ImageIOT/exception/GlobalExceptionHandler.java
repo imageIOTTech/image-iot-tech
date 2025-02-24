@@ -21,6 +21,8 @@ public class GlobalExceptionHandler {
             status = HttpStatus.NOT_FOUND;
         } else if (errorCode == 409) {
             status = HttpStatus.CONFLICT;
+        } else if (errorCode == 500) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
 
         Map<String, Object> errorBody = new HashMap<>();
